@@ -45,7 +45,7 @@ pipeline {
 
             post {
                 always {
-                    junit(keepLongStdio: true, testResults: 'target/surefire-reports/TEST-*.xml')
+                    junit(keepLongStdio: true, testResults: "${env.build_dir}/target/surefire-reports/TEST-*.xml")
                 }
 
                 cleanup { deleteDir() }
