@@ -31,7 +31,7 @@ pipeline {
         stage('Unit-test the Jenkins shared pipeline') {
             agent {
                 docker {
-                    image 'adoptopenjdk/maven-openjdk11:latest'
+                    image 'swails/maven:latest'
                     alwaysPull true
                 }
             }
