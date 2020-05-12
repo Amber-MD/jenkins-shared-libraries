@@ -30,7 +30,8 @@ pipeline {
         stage('Unit-test the Jenkins shared pipeline') {
             agent {
                 docker {
-                    image 'maven:3.6.3-openjdk-15'
+                    image 'adoptopenjdk/maven-openjdk11:latest'
+                    alwaysPull true
                 }
             }
 
