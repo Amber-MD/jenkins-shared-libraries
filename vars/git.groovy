@@ -17,9 +17,9 @@
  *                    allChanges: true corresponds to "git diff targetRef..sourceRef"
  *                    while allChanges: false corresponds to "git diff targetRef...sourceRef".
  *                    Default is false
- * :returns: set of file names that have changed between the two refs
+ * :returns: list of file names that have changed between the two refs
  */
-Set<String> diffFiles(Map params = [:]) {
+String[] diffFiles(Map params = [:]) {
     assert params.targetRef : 'targetRef parameter is required'
     String sourceRef = params.sourceRef ?: 'HEAD'
     boolean allChanges = params.getOrDefault('allChanges', false)
@@ -38,18 +38,19 @@ Set<String> diffFiles(Map params = [:]) {
         }
     }
 
-    String diffCommand = "${targetRef}...${sourceRef}"
+    String diffCommand = "${params.targetRef}...${sourceRef}"
     if (allChanges) {
-        diffCommand = "${targetRef}..${sourceRef}"
+        diffCommand = "${params.targetRef}..${sourceRef}"
     }
 
-    return sh(
+    String[] files = sh(
         label: 'git diff',
         script: """#!/bin/bash -ex
             git diff --name-only ${diffCommand}
         """,
         returnStdout: true
-    ).split('\n').toSet()
+    ).split('\n')
+    return files
 }
 
 /**
