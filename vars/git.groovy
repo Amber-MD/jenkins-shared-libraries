@@ -62,9 +62,9 @@ String[] diffFiles(Map params = [:]) {
  * :param gitCredentialsId: name of the credentials ID to use to push changes back to git
  * :param push: true if the merged changes should be pushed (default), false otherwise
  * :param remote: name of the remote to push to. Default is origin
- * :returns: true if the merge made changes and false otherwise
+ * :returns: Map with boolean elements changesMade, succeeded, and errors
  */
-boolean merge(Map params = [:]) {
+Map merge(Map params = [:]) {
     assert params.currentBranch : 'currentBranch is required'
     assert params.targetBranch : 'targetBranch is required'
     assert params.gitCredentialsId : 'gitCredentialsId is required'
@@ -77,8 +77,8 @@ boolean merge(Map params = [:]) {
     String mergeContents
 
     sshagent([params.gitCredentialsId]) {
-        hasFailed = sh(label: 'git fetch merge and push', script: """#!/bin/bash
-            set -exo pipefail
+        hasFailed = sh(label: 'fetch and merge', script: """#!/bin/bash
+            set -ex
             echo "NO MERGE" > merge_output.txt
 
             echo "INFO: fetching from ${remote}"
@@ -91,35 +91,36 @@ boolean merge(Map params = [:]) {
             echo "INFO: merging target branch"
             git merge --no-edit ${remote}/${params.targetBranch} > merge_output.txt
         """, returnStatus: true) != 0
-        String mergeText = readFile('merge_output.txt').trim()
+    }
+    String mergeText = readFile('merge_output.txt').trim()
 
-        if (mergeText == 'NO MERGE') {
-            assert hasFailed : 'NO MERGE could not have happened if the script passed'
-            error("Failed before merge was attempted. See job output for details")
-        } else if (hasFailed) {
-            errorMessage = "Merge failed: ${mergeText}"
-            int status = sh(label: 'abort merge', script: 'git merge --abort', returnStatus: true)
-            if (status != 0) {
-                echo "ERROR: git merge --abort failed. Ignoring..."
-            }
-            error(errorMessage)
-        } else if (mergeText == "Already up to date.") {
-            echo "INFO: ${params.currentBranch} was already up-to-date with ${params.targetBranch}"
-            return false
-        } else {
-            echo "INFO: merge made changes"
-            if (doPush) {
-                hasFailed = sh(label: 'push changes', returnStatus: true,
-                               script: "git push ${remote} ${params.currentBranch}") == 0
-                if (hasFailed) {
-                    error("Failed to push changes to ${remote}")
-                }
-            } else {
-                echo "INFO: push set to false; not pushing"
-            }
-            return true
+    if (mergeText == 'NO MERGE') {
+        assert hasFailed : 'NO MERGE could not have happened if the script passed'
+        String msg = "Failed before merge was attempted. See job output for details"
+        return ['changesMade': false, 'succeeded': false, 'errors': msg]
+    } else if (hasFailed) {
+        errorMessage = "Merge failed: ${mergeText}"
+        int status = sh(label: 'abort merge', script: 'git merge --abort', returnStatus: true)
+        if (status != 0) {
+            echo "ERROR: git merge --abort failed. Ignoring..."
         }
+        return ['changesMade': false, 'succeeded': false, 'errors': errorMessage]
+    } else if (mergeText == "Already up to date.") {
+        echo "INFO: ${params.currentBranch} was already up-to-date with ${params.targetBranch}"
+        return ['changesMade': false, 'succeeded': true, 'errors': '']
+    } else {
+        String msg = ''
+        if (doPush) {
+            sshagent([params.gitCredentialsId]) {
+                hasFailed = sh(label: 'push changes', returnStatus: true,
+                               script: "git push ${remote} ${params.currentBranch}") != 0
+                msg = hasFailed ? "Failed to push changes to ${remote}" : ''
+            }
+        } else {
+            echo "INFO: push set to false; not pushing"
+        }
+        return ['changesMade': true, 'succeeded': !hasFailed, 'errors': msg]
     }
 
-    return false
+    return ['changesMade': false, 'succeeded': true, 'errors': '']
 }

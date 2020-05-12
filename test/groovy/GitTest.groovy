@@ -147,9 +147,31 @@ class GitTest extends BasePipelineTest {
                                    gitCredentialsId: 'some-creds')
 
         def shCalls = helper.callStack.findAll {call -> call.methodName == 'sh' && call.args[0].label == 'push changes'}
-        assert shCalls.size() == 1 : 'Should not have pushed'
-        assert results.changesMade : 'Should have made any changes'
+        def sshAgentCalls = helper.callStack.findAll {call -> call.methodName == 'sshagent'}
+        assert sshAgentCalls.size() == 2: 'Should have separate sshagent blocks for fetch and push'
+        assert shCalls.size() == 1 : 'Should have pushed'
+        assert results.changesMade : 'Should have made changes'
         assert results.succeeded : 'Should have recorded a success'
+    }
 
+    @Test
+    void 'merge will not push made changes if not requested'() {
+        def script = loadScript('vars/git.groovy')
+        helper.registerAllowedMethod('readFile', [String.class], {fname ->
+            assert fname == 'merge_output.txt' : 'merge_output.txt should be read'
+            return 'Updating 9234235..123434\nFast-forward\n .gitignore | 3+--\n'
+        })
+        helper.registerAllowedMethod('sh', [Map.class], {params ->
+            return 0
+        })
+        Map results = script.merge(currentBranch: 'source', targetBranch: 'target',
+                                   gitCredentialsId: 'some-creds', push: false)
+
+        def shCalls = helper.callStack.findAll {call -> call.methodName == 'sh' && call.args[0].label == 'push changes'}
+        def sshAgentCalls = helper.callStack.findAll {call -> call.methodName == 'sshagent'}
+        assert sshAgentCalls.size() == 1: 'Should have sshagent block only for fetch'
+        assert shCalls.size() == 0 : 'Should not have pushed'
+        assert results.changesMade : 'Should have made changes'
+        assert results.succeeded : 'Should have recorded a success'
     }
 }
