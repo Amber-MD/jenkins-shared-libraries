@@ -4,7 +4,7 @@ pipeline {
     options {
         skipDefaultCheckout()
         buildDiscarder(logRotator(numToKeepStr: '5'))
-        timestamps
+        timestamps()
     }
 
     environment {
