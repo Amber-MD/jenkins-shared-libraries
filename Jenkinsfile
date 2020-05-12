@@ -17,6 +17,7 @@ pipeline {
 
             steps {
                 dir(env.build_dir) {
+                    deleteDir()
                     script {
                         env.GIT_COMMIT = checkout(scm)
                     }
@@ -46,6 +47,8 @@ pipeline {
                 always {
                     junit(keepLongStdio: true, testResults: 'target/surefire-reports/TEST-*.xml')
                 }
+
+                cleanup { deleteDir() }
             }
         }
     }
