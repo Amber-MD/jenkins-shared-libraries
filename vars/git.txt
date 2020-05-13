@@ -1,0 +1,28 @@
+<strong>String[] git.diffFiles()</strong>
+
+<p> Get a list of files that differ between two refs. Available parameters: </p>
+<ul>
+    <li> targetRef: name of the target ref to use. This is required. </li>
+    <li> sourceRef: name of the source ref to use. Default is HEAD. </li>
+    <li> fetchRemote: name of the remote to fetch. If not set, nothing is fetched.
+    <li> gitCredentialsId: the credentials ID to use to fetch from the remote.
+                           if not set, anonymous fetching will be attempted </li>
+    <li> allChanges: if true, fetch all changes between the refs. if false, only
+                      the changes from the source will be listed. More explicitly,
+                      allChanges: true corresponds to "git diff targetRef..sourceRef"
+                      while allChanges: false corresponds to "git diff targetRef...sourceRef".
+                      Default is false </li>
+</ul>
+
+<strong>Map git.merge()</strong>
+
+<p> Merge a target ref into the current branch and (optionally) push upstream.
+Available parameters are: </p>
+<ul>
+    <li> currentBranch: name of the branch to be currently checked out. Since Jenkins checks out
+                        in detached head state, this parameter is required</li>
+    <li> targetBranch: name of the branch to merge into currentBranch *from the remote*. Required.</li>
+    <li> gitCredentialsId: name of the credentials ID to use to push changes back to git</li>
+    <li> push: true if the merged changes should be pushed (default), false otherwise</li>
+    <li> remote: name of the remote to push to. Default is origin</li>
+</ul>
