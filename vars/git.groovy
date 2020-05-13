@@ -89,6 +89,8 @@ Map merge(Map params = [:]) {
             git pull
 
             echo "INFO: merging target branch"
+            git config user.name "Jenkins Automation"
+            git config user.email "no-reply@ambermd.org"
             git merge --no-edit ${remote}/${params.targetBranch} > merge_output.txt
         """, returnStatus: true) != 0
     }
