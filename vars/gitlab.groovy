@@ -67,7 +67,7 @@ Map internal_gitlabRequest(Map params = [:]) {
 
     withCredentials([string(credentialsId: credentialsId, variable: 'GITLAB_TOKEN')]) {
         def resp = httpRequest(
-            url: "${GITLAB_SERVER}/${uri}"
+            url: "${GITLAB_SERVER}/${uri}",
             acceptType: 'APPLICATION_JSON',
             contentType: 'APPLICATION_JSON',
             httpMode: httpMode,
