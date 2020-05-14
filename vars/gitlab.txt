@@ -1,12 +1,24 @@
-<strong>String[] gitlab.mergeRequestAuthor()</strong>
+<strong>Map gitlab.mergeRequestAuthor()</strong>
 
 <p> Get the user details of the person that submitted the merge request </p>
 <ul>
     <li> projectId: The project identifier for the owner of the merge request. Required </li>
     <li> mergeRequestId: The MergeRequestIid (internal ID) specific to the project
          (not globally unique).</li>
-    <li> fetchRemote: name of the remote to fetch. If not set, nothing is fetched.
     <li> gitlabCredentialsId: the secret text with the user token for gitlab authentication</li>
 </ul>
 
 The returned results are a Map with keys id, name, username, state, avatar_url, and web_url
+
+<strong>Map gitlab.mergeRequestComment()</strong>
+
+<p> Make a comment on the specified merge request </p>
+<ul>
+    <li> projectId: The project identifier for the owner of the merge request. Required </li>
+    <li> mergeRequestId: The MergeRequestIid (internal ID) specific to the project
+         (not globally unique).</li>
+    <li> message: The message to post to the merge request </li>
+    <li> gitlabCredentialsId: the secret text with the user token for gitlab authentication</li>
+</ul>
+
+The returned results are a Map with response from the GitLab API with the details of the posted comment

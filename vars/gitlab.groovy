@@ -26,9 +26,32 @@ import groovy.transform.Field
  * :returns: the user information of the person that raised the merge request
  */
 Map mergeRequestAuthor(Map params = [:]) {
-
     Map mergeRequest = internal_getMergeRequest(params)
     return mergeRequest.author
+}
+
+/**
+ * Posts a comment on a merge request
+ *
+ * :param message: The message to post to the merge request discussion. Required
+ * :param projectId: The ID of the project. Required.
+ * :param mergeRequestId: This is the merge request Iid (not Id), which is the
+ *                        project-specific ID, not the globally-unique ID. Required
+ * :param gitlabCredentialsId: The credentials ID storing the GitLab access token to use.
+ *                             Default is 'amber-gitlab-automaton-token'
+ * :returns: the REST API response
+ */
+Map mergeRequestComment(Map params = [:]) {
+    assert params.message : 'message is required'
+    assert params.projectId : 'projectId is required'
+    assert params.mergeRequestId : 'mergeRequestId is required'
+
+    return internal_gitlabRequest(
+        uri: "api/v4/projects/${params.projectId}/merge_requests/${params.mergeRequestId}/discussion",
+        requestBody: ['body': params.message],
+        credentialsId: params.gitlabCredentialsId ?: defaultCredentialsId,
+        httpMode: 'POST',
+    )
 }
 
 /**
@@ -75,6 +98,7 @@ Map internal_gitlabRequest(Map params = [:]) {
                 [name: 'Authorization', value: "Bearer ${GITLAB_TOKEN}", maskValue: true]
             ],
             validResponseCodes: validResponseCodes,
+            requestBody: params.requestBody,
         )
         response = readJSON(text: resp.getContent())
     }
