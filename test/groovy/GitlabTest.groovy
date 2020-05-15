@@ -121,4 +121,50 @@ class GitlabTest extends BasePipelineTest {
         Map resp = script.mergeRequestAuthor(projectId: '5', mergeRequestId: '10')
         assert resp == ['username': 'foo', 'email': 'bar@email.com'] : 'Unexpected response'
     }
+
+    @Test
+    void 'mergeRequestComment requires a message'() {
+        def script = loadScript('vars/gitlab.groovy')
+        try {
+            script.mergeRequestComment(projectId: '5', mergeRequestId: '10')
+            assert false : 'internal_getMergeRequest should have failed'
+        } catch (AssertionError err) {
+            println("[INFO] Caught expected AssertionError: ${err}")
+        }
+    }
+
+    @Test
+    void 'mergeRequestComment requires a projectId'() {
+        def script = loadScript('vars/gitlab.groovy')
+        try {
+            script.mergeRequestComment(message: 'some message', mergeRequestId: '10')
+            assert false : 'internal_getMergeRequest should have failed'
+        } catch (AssertionError err) {
+            println("[INFO] Caught expected AssertionError: ${err}")
+        }
+    }
+
+    @Test
+    void 'mergeRequestComment requires a mergeRequestId'() {
+        def script = loadScript('vars/gitlab.groovy')
+        try {
+            script.mergeRequestComment(message: 'some message', projectId: '5')
+            assert false : 'internal_getMergeRequest should have failed'
+        } catch (AssertionError err) {
+            println("[INFO] Caught expected AssertionError: ${err}")
+        }
+    }
+
+    @Test
+    void 'mergeRequestComment sends a request to the GitLab API'() {
+        def script = loadScript('vars/gitlab.groovy')
+        script.metaClass.internal_gitlabRequest = {Map params ->
+            return ['body': params.requestBody, 'uri': params.uri, 'credentials': params.credentialsId,
+                    'mode': params.httpMode]
+        }
+        Map resp = script.mergeRequestComment(message: 'some message', projectId: '5',
+                                              mergeRequestId: '10')
+        assert resp == ['body': '{"body":"some message"}', 'uri': 'api/v4/projects/5/merge_requests/10/discussion',
+                        'mode': 'POST', 'credentials': 'amber-gitlab-automaton-token']
+    }
 }

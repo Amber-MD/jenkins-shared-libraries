@@ -8,6 +8,7 @@
  * gitlabCredentialsId should always be a "secret text" type of credentials
  */
 import groovy.transform.Field
+import groovy.json.JsonOutput
 
 // This should be set to the address of the GitLab server you wish to use
 @Field String GITLAB_SERVER = 'https://gitlab.ambermd.org'
@@ -48,7 +49,7 @@ Map mergeRequestComment(Map params = [:]) {
 
     return internal_gitlabRequest(
         uri: "api/v4/projects/${params.projectId}/merge_requests/${params.mergeRequestId}/discussion",
-        requestBody: ['body': params.message],
+        requestBody: JsonOutput.toJson(['body': params.message]),
         credentialsId: params.gitlabCredentialsId ?: defaultCredentialsId,
         httpMode: 'POST',
     )
