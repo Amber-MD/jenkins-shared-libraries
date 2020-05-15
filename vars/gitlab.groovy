@@ -111,3 +111,32 @@ Map internal_gitlabRequest(Map params = [:]) {
     }
     return response
 }
+
+/// Utility to upload attachments to a project
+Map internal_gitlabUploadAttachment(Map params = [:]) {
+    assert params.projectId : 'projectId is required'
+    assert params.fileName : 'fileName is required'
+    assert fileExists(params.fileName) : "${params.fileName} must exist"
+
+    String validResponseCodes = params.validResponseCodes ?: '100:399'
+    String url = "${GITLAB_SERVER}/api/v4/projects/${params.projectId}/uploads"
+    String credentialsId = params.credentialsId ?: defaultCredentialsId
+    String fileName = params.fileName
+
+    Map response
+
+    withCredentials([string(credentialsId: credentialsId, variable: 'GITLAB_TOKEN')]) {
+        def resp = httpRequest(
+            url: url,
+            httpMode: 'POST',
+            wrapAsMultipart: true,
+            multipartName: 'file',
+            customHeaders: [
+                [name: 'Authorization', value: "Bearer ${GITLAB_TOKEN}", maskValue: true]
+            ],
+            uploadFile: fileName
+        )
+        response = readJSON(text: resp.getContent())
+    }
+    return response
+}

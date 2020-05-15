@@ -19,7 +19,7 @@ class GitTest extends BasePipelineTest {
         def script = loadScript('vars/git.groovy')
         try {
             script.diffFiles()
-            assert false : 'diffFiles should have failed'
+            throw new RuntimeException('should not have reached here')
         } catch (AssertionError err) {
             println("[INFO] Caught expected AssertionError: ${err}")
         }
@@ -86,7 +86,7 @@ class GitTest extends BasePipelineTest {
         def script = loadScript('vars/git.groovy')
         try {
             script.merge(targetBranch: 'target', gitCredentialsId: 'some-creds')
-            assert false : 'Should have failed'
+            throw new RuntimeException('should not have reached here')
         } catch(AssertionError err) {
             println('[INFO] Caught expected AssertionError')
         }
@@ -97,7 +97,7 @@ class GitTest extends BasePipelineTest {
         def script = loadScript('vars/git.groovy')
         try {
             script.merge(sourceBranch: 'source', gitCredentialsId: 'some-creds')
-            assert false : 'Should have failed'
+            throw new RuntimeException('should not have reached here')
         } catch(AssertionError err) {
             println('[INFO] Caught expected AssertionError')
         }
@@ -108,7 +108,7 @@ class GitTest extends BasePipelineTest {
         def script = loadScript('vars/git.groovy')
         try {
             script.merge(currentBranch: 'source', targetBranch: 'target')
-            assert false : 'Should have failed'
+            throw new RuntimeException('should not have reached here')
         } catch(AssertionError err) {
             println('[INFO] Caught expected AssertionError')
         }
