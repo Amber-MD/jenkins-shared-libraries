@@ -55,10 +55,6 @@ Map mergeRequestComment(Map params = [:]) {
     String credentialsId = params.gitlabCredentialsId ?: defaultCredentialsId
     String[] files = params.files ?: []
 
-    if (params.individualNote) {
-        body['individual_note'] = true
-    }
-
     if (files.size() > 1) {
         for (int i = 1; i <= files.size(); i++) {
             String token = "FILE${i}"
@@ -79,6 +75,9 @@ Map mergeRequestComment(Map params = [:]) {
     }
 
     Map body = ['body': message]
+    if (params.individualNote) {
+        body['individual_note'] = true
+    }
 
     return internal_gitlabRequest(
         uri: "api/v4/projects/${params.projectId}/merge_requests/${params.mergeRequestId}/discussions",
