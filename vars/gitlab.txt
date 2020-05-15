@@ -1,0 +1,26 @@
+<strong>Map gitlab.mergeRequestAuthor()</strong>
+
+<p> Get the user details of the person that submitted the merge request </p>
+<ul>
+    <li> projectId: The project identifier for the owner of the merge request. Required </li>
+    <li> mergeRequestId: The MergeRequestIid (internal ID) specific to the project
+         (not globally unique).</li>
+    <li> gitlabCredentialsId: the secret text with the user token for gitlab authentication</li>
+</ul>
+
+The returned results are a Map with keys id, name, username, state, avatar_url, and web_url
+
+<strong>Map gitlab.mergeRequestComment()</strong>
+
+<p> Make a comment on the specified merge request </p>
+<ul>
+    <li> projectId: The project identifier for the owner of the merge request. Required </li>
+    <li> mergeRequestId: The MergeRequestIid (internal ID) specific to the project
+         (not globally unique).</li>
+    <li> message: The message to post to the merge request </li>
+    <li> files: the list of files to include as attachments. If provided, the message must have
+         tokens FILE1, FILE2, ..., FILEN where N is the total number of files in this list. </li>
+    <li> gitlabCredentialsId: the secret text with the user token for gitlab authentication</li>
+</ul>
+
+The returned results are a Map with response from the GitLab API with the details of the posted comment
