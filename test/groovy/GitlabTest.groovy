@@ -156,6 +156,45 @@ class GitlabTest extends BasePipelineTest {
     }
 
     @Test
+    void 'mergeRequestComment with files requires tokens to exist'() {
+        def script = loadScript('vars/gitlab.groovy')
+        helper.registerAllowedMethod('fileExists', [String.class], {name -> true})
+        try {
+            script.mergeRequestComment(message: 'some-message', projectId: '5', mergeRequestId: '10',
+                                       files: ['file1.png', 'file2.jpg', 'file3.tgz'])
+            throw new RuntimeException('should not have reached here')
+        } catch (AssertionError err) {
+            println("[INFO] Caught expected AssertionError: ${err}")
+        }
+    }
+
+    @Test
+    void 'mergeRequestComment with files requires all tokens to exist'() {
+        def script = loadScript('vars/gitlab.groovy')
+        helper.registerAllowedMethod('fileExists', [String.class], {name -> true})
+        try {
+            script.mergeRequestComment(message: 'some-message FILE1 FILE2', projectId: '5', mergeRequestId: '10',
+                                       files: ['file1.png', 'file2.jpg', 'file3.tgz'])
+            throw new RuntimeException('should not have reached here')
+        } catch (AssertionError err) {
+            println("[INFO] Caught expected AssertionError: ${err}")
+        }
+    }
+
+    @Test
+    void 'mergeRequestComment with files requires files to exist'() {
+        def script = loadScript('vars/gitlab.groovy')
+        helper.registerAllowedMethod('fileExists', [String.class], {name -> name != 'file3.tgz'})
+        try {
+            script.mergeRequestComment(message: 'FILE1 FILE2 FILE3', projectId: '5', mergeRequestId: '10',
+                                       files: ['file1.png', 'file2.jpg', 'file3.tgz'])
+            throw new RuntimeException('should not have reached here')
+        } catch (AssertionError err) {
+            println("[INFO] Caught expected AssertionError: ${err}")
+        }
+    }
+
+    @Test
     void 'mergeRequestComment sends a request to the GitLab API'() {
         def script = loadScript('vars/gitlab.groovy')
         script.metaClass.internal_gitlabRequest = {Map params ->
