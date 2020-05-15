@@ -86,6 +86,7 @@ Map merge(Map params = [:]) {
 
             echo "INFO: checking out ${params.currentBranch}"
             git branch ${params.currentBranch} || echo "Branch already exists!"
+            git checkout ${params.currentBranch}
             git fetch ${remote}
             git merge ${remote}/${params.currentBranch}
 
