@@ -40,12 +40,18 @@ Map mergeRequestAuthor(Map params = [:]) {
  *                        project-specific ID, not the globally-unique ID. Required
  * :param gitlabCredentialsId: The credentials ID storing the GitLab access token to use.
  *                             Default is 'amber-gitlab-automaton-token'
+ * :param individualNote: if true, make this an individual note instead of a thread
  * :returns: the REST API response
  */
 Map mergeRequestComment(Map params = [:]) {
     assert params.message : 'message is required'
     assert params.projectId : 'projectId is required'
     assert params.mergeRequestId : 'mergeRequestId is required'
+
+    Map body = ['body': params.message]
+    if (params.individualNote) {
+        body['individual_note'] = true
+    }
 
     return internal_gitlabRequest(
         uri: "api/v4/projects/${params.projectId}/merge_requests/${params.mergeRequestId}/discussions",
