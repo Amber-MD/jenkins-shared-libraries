@@ -85,8 +85,9 @@ Map merge(Map params = [:]) {
             git fetch ${remote}
 
             echo "INFO: checking out ${params.currentBranch}"
-            git checkout -b ${params.currentBranch} --track ${remote}/${params.currentBranch}
-            git pull
+            git branch ${params.currentBranch} || echo "Branch already exists!"
+            git fetch ${remote}
+            git merge ${remote}/${params.currentBranch}
 
             echo "INFO: merging target branch"
             git config user.name "Jenkins Automation"
