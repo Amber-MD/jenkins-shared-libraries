@@ -208,6 +208,28 @@ class GitlabTest extends BasePipelineTest {
     }
 
     @Test
+    void 'mergeRequestComment uploads files and adds markdown to body'() {
+        def script = loadScript('vars/gitlab.groovy')
+        script.metaClass.internal_gitlabUploadAttachment = {Map params ->
+            return ['markdown': "![label](/uploads/some-guid/${params.fileName})",
+                    'url': "/uploads/some-guid/${params.fileName}", 'alt': params.fileName]
+        }
+        script.metaClass.internal_gitlabRequest = {Map params ->
+            String assertString = ('{"body":"' +
+                '![label](/uploads/some-guid/file1.png) ' +
+                '![label](/uploads/some-guid/file2.jpg) ' +
+                '![label](/uploads/some-guid/file3.tgz)"}')
+            assert params.requestBody == assertString : 'Substitutions did not happen'
+            return ['foo': 'bar']
+        }
+        helper.registerAllowedMethod('fileExists', [String.class], {fileName -> true})
+
+        def resp = script.mergeRequestComment(message: 'FILE1 FILE2 FILE3', projectId: '5', mergeRequestId: '10',
+                                              files: ['file1.png', 'file2.jpg', 'file3.tgz'])
+        assert resp.foo == 'bar' : 'Did not process the internal response properly'
+    }
+
+    @Test
     void 'internal_gitlabUploadAttachment requires a fileName'() {
         helper.registerAllowedMethod('fileExists', [String.class], {fileName -> true})
         def script = loadScript('vars/gitlab.groovy')
