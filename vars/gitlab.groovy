@@ -40,7 +40,6 @@ Map mergeRequestAuthor(Map params = [:]) {
  *                        project-specific ID, not the globally-unique ID. Required
  * :param gitlabCredentialsId: The credentials ID storing the GitLab access token to use.
  *                             Default is 'amber-gitlab-automaton-token'
- * :param individualNote: if true, make ethis an individual note instead of a thread
  * :param files: A list of file names to upload. The message must have the tokens FILE1,
                  FILE2, FILE3, ..., FILEN for i = 1 to the size of the list of files. These
                  tokens will be replaced with the markdown links to the uploaded attachments.
@@ -56,32 +55,27 @@ Map mergeRequestComment(Map params = [:]) {
     String[] files = params.files ?: []
 
     if (files.size() > 1) {
-        for (int i = 1; i <= files.size(); i++) {
-            String token = "FILE${i}"
-            assert message.contains(token) : "${i}+ files were uploaded, but ${token} placeholder was not in message"
+        for (int i = 0; i < files.size(); i++) {
+            String token = "FILE${i+1}"
+            assert message.contains(token) : "${i+1}+ files were uploaded, but ${token} placeholder was not in message"
             // Check that all files exist before we try uploading any
             assert fileExists(files[i]) : "${files[i]} does not exist; cannot upload"
         }
         // If we got here, then we have all the necessary tokens and files all exist. Go ahead and upload each one
-        for (int i = 1; i <= files.size(); i++) {
+        for (int i = 0; i < files.size(); i++) {
             Map response = internal_gitlabUploadAttachment(
                 projectId: params.projectId,
                 fileName: files[i],
                 credentialsId: credentialsId,
             )
             echo "INFO: Uploaded new attachment ${files[i]}"
-            message = message.replaceAll("FILE${i}", response.markdown)
+            message = message.replaceAll("FILE${i+1}", response.markdown)
         }
-    }
-
-    Map body = ['body': message]
-    if (params.individualNote) {
-        body['individual_note'] = true
     }
 
     return internal_gitlabRequest(
         uri: "api/v4/projects/${params.projectId}/merge_requests/${params.mergeRequestId}/discussions",
-        requestBody: JsonOutput.toJson(body),
+        requestBody: JsonOutput.toJson(['body': message]),
         credentialsId: credentialsId,
         httpMode: 'POST',
     )
