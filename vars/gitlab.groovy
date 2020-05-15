@@ -48,7 +48,7 @@ Map mergeRequestComment(Map params = [:]) {
     assert params.mergeRequestId : 'mergeRequestId is required'
 
     return internal_gitlabRequest(
-        uri: "api/v4/projects/${params.projectId}/merge_requests/${params.mergeRequestId}/discussion",
+        uri: "api/v4/projects/${params.projectId}/merge_requests/${params.mergeRequestId}/discussions",
         requestBody: JsonOutput.toJson(['body': params.message]),
         credentialsId: params.gitlabCredentialsId ?: defaultCredentialsId,
         httpMode: 'POST',

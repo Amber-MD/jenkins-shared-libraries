@@ -164,7 +164,7 @@ class GitlabTest extends BasePipelineTest {
         }
         Map resp = script.mergeRequestComment(message: 'some message', projectId: '5',
                                               mergeRequestId: '10')
-        assert resp == ['body': '{"body":"some message"}', 'uri': 'api/v4/projects/5/merge_requests/10/discussion',
+        assert resp == ['body': '{"body":"some message"}', 'uri': 'api/v4/projects/5/merge_requests/10/discussions',
                         'mode': 'POST', 'credentials': 'amber-gitlab-automaton-token']
     }
 }
