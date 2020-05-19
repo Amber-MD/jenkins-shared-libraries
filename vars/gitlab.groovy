@@ -54,7 +54,7 @@ Map mergeRequestComment(Map params = [:]) {
     String credentialsId = params.gitlabCredentialsId ?: defaultCredentialsId
     String[] files = params.files ?: []
 
-    if (files.size() > 1) {
+    if (files.size() > 0) {
         for (int i = 0; i < files.size(); i++) {
             String token = "FILE${i+1}"
             assert message.contains(token) : "${i+1}+ files were uploaded, but ${token} placeholder was not in message"
