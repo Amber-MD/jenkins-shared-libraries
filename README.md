@@ -1,9 +1,7 @@
-# Jenkins Shared Libraries for Amber
+# Jenkins Shared Libraries
 
 The shared libraries here are written to aid in automated tests through Jenkins
-for the Amber project. Many projects are hosted on GitHub in the Amber-MD
-organization. The main Amber repository is hosted on a private GitLab server
-at https://gitlab.ambermd.org.
+for computational chemistry projects hosted on GitLab and GitHub.
 
 The shared pipeline libraries included in this repository aim to extract
 common, generalized functionality useful in Jenkins CI pipelines and pack them
