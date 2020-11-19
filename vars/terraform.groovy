@@ -26,7 +26,7 @@ void withTerraform(Map params, Closure body) {
         }
 
         echo "INFO: Downloading terraform"
-        sh(label: "Download terraform", script: """#!/bin/bash -ex
+        sh(label: "Download terraform", script: """#!/bin/sh -ex
             cd ${env.WORKSPACE}
             wget ${terraformUrl}
             unzip ${terraformFileName}
