@@ -11,7 +11,9 @@ import groovy.transform.Field
  * :param awsCredentials: The AWS Credentials to set up for access to AWS
  */
 void withTerraform(Map params, Closure body) {
-    docker.image("hashicorp/terraform:${terraformVersion}").inside("-e HOME=\"${env.WORKSPACE}\"") {
+    String terraformFileName = "terraform_${terraformVersion}_linux_amd64.zip"
+    String terraformUrl = "https://releases.hashicorp.com/terraform/${terraformVersion}/${terraformFileName}"
+    docker.image('alpine:3.12').inside("-e HOME=\"${env.WORKSPACE}\"") {
         // Set up AWS credentials if provided
         if (params.awsCredentials) {
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
@@ -22,6 +24,13 @@ void withTerraform(Map params, Closure body) {
                           text: "[default]\naws_access_key_id=${AWS_ACCESS_KEY_ID}\naws_secret_access_key=${AWS_SECRET_ACCESS_KEY}\n")
             }
         }
+
+        sh(label: "Download terraform", script: """#!/bin/bash -ex
+            cd ${env.WORKSPACE}
+            wget ${terraformUrl}
+            unzip ${terraformFileName}
+            rm ${terraformFileName}
+        """)
 
         body()
     }
