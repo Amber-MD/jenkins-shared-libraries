@@ -31,7 +31,6 @@ void withTerraform(Map params, Closure body) {
             wget ${terraformUrl}
             unzip ${terraformFileName}
             rm ${terraformFileName}
-            cat ~/.aws/credentials
         """)
 
         body()
