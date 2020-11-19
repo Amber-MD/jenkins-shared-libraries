@@ -87,7 +87,7 @@ boolean apply(Map params = [:]) {
  */
 boolean terraformCommand(String command, String args, boolean errorOnFailure) {
     boolean succeeded = sh(label: "Terraform ${command}",
-                           script: "terraform ${command} ${args}",
+                           script: "${env.WORKSPACE}/terraform ${command} ${args}",
                            returnStatus: true) == 0
 
     if (!succeeded && errorOnFailure) {
