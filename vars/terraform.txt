@@ -1,0 +1,38 @@
+<strong>void terraform.withTerraform()</strong>
+
+<p> Provides a context where commands are run with terraform available </p>
+<ul>
+    <li> awsCredentials: Credentials containing AWS access key and secret </li>
+</ul>
+
+<strong>boolean terraform.init()</strong>
+
+<p> Initialize terraform </p>
+<ul>
+    <li> args: Command-line arguments passed to terraform init </li>
+    <li> errorOnFailure: If true, the build will fail if terraform init fails </li>
+</ul>
+
+The return boolean is true if the init succeeded, false otherwise
+
+<strong>boolean terraform.plan()</strong>
+
+<p> Plan terraform </p>
+<ul>
+    <li> fileName: The name of the file that the terraform plan output is saved to </li>
+    <li> args: Command-line arguments passed to terraform init </li>
+    <li> errorOnFailure: If true, the build will fail if terraform init fails </li>
+</ul>
+
+The return boolean is true if the plan succeeded, false otherwise
+
+<strong>boolean terraform.apply()</strong>
+
+<p> Apply terraform </p>
+<ul>
+    <li> fileName: The name of the file that the terraform plan output is saved to </li>
+    <li> args: Command-line arguments passed to terraform init </li>
+    <li> errorOnFailure: If true, the build will fail if terraform init fails </li>
+</ul>
+
+The return boolean is true if the apply succeeded, false otherwise
