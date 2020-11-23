@@ -81,7 +81,8 @@ boolean init(Map params = [:]) {
  * :return succeeded: If the terraform apply succeeded, return True. Otherwise false
  */
 boolean apply(Map params = [:]) {
-    String errorOnFailure = params.getOrDefault('errorOnFailure', true)
+    boolean errorOnFailure = params.getOrDefault('errorOnFailure', true)
+    String args = params.args ?: ''
     if (params.fileName) {
         return terraformCommand('apply', "${args} -auto-approve | tee ${params.fileName}", errorOnFailure)
     }
