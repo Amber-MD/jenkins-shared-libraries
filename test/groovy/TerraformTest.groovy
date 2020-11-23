@@ -36,4 +36,28 @@ class TerraformTest extends BasePipelineTest {
         }
         assert script.plan(fileName: 'baloney.plan', args: '-some-arg foo -other-arg bar')
     }
+
+    @Test
+    void 'verify custom args with apply'() {
+        def script = loadScript('vars/terraform.groovy')
+        script.metaClass.terraformCommand = {String command, String args, boolean errorOnFailure ->
+            assert command == 'apply'
+            assert args.trim() == '-some-arg foo -other-arg bar -auto-approve'
+            assert errorOnFailure
+            return true
+        }
+        assert script.apply(args: '-some-arg foo -other-arg bar')
+    }
+
+    @Test
+    void 'verify apply with log output file'() {
+        def script = loadScript('vars/terraform.groovy')
+        script.metaClass.terraformCommand = {String command, String args, boolean errorOnFailure ->
+            assert command == 'apply'
+            assert args.trim() == '-auto-approve | tee terraform.log'
+            assert errorOnFailure
+            return true
+        }
+        assert script.apply(fileName: 'terraform.log')
+    }
 }
