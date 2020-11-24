@@ -1,4 +1,4 @@
-<strong>boolean github.fileChangedIn()</strong>
+<strong>boolean gh.fileChangedIn()</strong>
 
 <p> Returns true if a file was changed in the passed directory </p>
 <ul>
