@@ -1,0 +1,11 @@
+<strong>boolean github.fileChangedIn()</strong>
+
+<p> Returns true if a file was changed in the passed directory </p>
+<ul>
+    <li> pattern: A string of a file or path prefix to test if changes were made to it.</li>
+    <li> patterns: A list of file or path prefix to check for changes. </li>
+    <li> targetRef: If this is a pull request, the target ref (target branch) to look for differences. Default is 'origin/main' </li>
+    <li> sourceRef: The ref to compare against the target for changes. Default is HEAD </li>
+</ul>
+
+Returns true if the directory/file was changed either from the target branch if it is a pull request or since the last build if not a PR.
