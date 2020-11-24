@@ -44,7 +44,6 @@ Map filesChangedSinceLastSuccessfulBuild() {
     def build = currentBuild
     echo "INFO: Looking for changes in build ${build}"
     while (build && !buildSucceeded) {
-        buildSucceeded = build.result && build.result == 'SUCCESS'
         echo "INFO: Build has ${build.changeSets.size()} change sets"
         build.changeSets.each { changeSet ->
             echo "INFO: change set has ${changeSet.items.size()} items"
@@ -57,6 +56,7 @@ Map filesChangedSinceLastSuccessfulBuild() {
             }
         }
         build = build.getPreviousBuild()
+        buildSucceeded = build.result && build.result == 'SUCCESS'
     }
 
     return [changedFiles: changedFiles, foundSuccessfulBuild: buildSucceeded]
