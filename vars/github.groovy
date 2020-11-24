@@ -4,7 +4,7 @@
  * :param path: Name of the file or path prefix where changes should be looked for
  * :param paths: A list of file or path prefix names where changes should be looked for
  */
-boolean github.fileChangedIn(Map params = [:]) {
+boolean fileChangedIn(Map params = [:]) {
     String path = params.path ?: ''
     def paths = params.paths ?: []
     if (paths == [] && path == '') {
