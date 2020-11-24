@@ -56,7 +56,7 @@ Map filesChangedSinceLastSuccessfulBuild() {
             }
         }
         build = build.getPreviousBuild()
-        buildSucceeded = build.result && build.result == 'SUCCESS'
+        buildSucceeded = build.result != null && build.result == 'SUCCESS'
     }
 
     return [changedFiles: changedFiles, foundSuccessfulBuild: buildSucceeded]
