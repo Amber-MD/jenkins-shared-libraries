@@ -3,8 +3,6 @@
  *
  * :param path: Name of the file or path prefix where changes should be looked for
  * :param paths: A list of file or path prefix names where changes should be looked for
- * :param targetRef: name of the target ref to use. Default is "origin/main"
- * :param sourceRef: name of the source ref to use. Default is HEAD.
  */
 boolean github.fileChangedIn(Map params = [:]) {
     String path = params.path ?: ''
@@ -15,20 +13,17 @@ boolean github.fileChangedIn(Map params = [:]) {
         paths << path
     }
 
-    String targetRef = params.targetRef ?: 'origin/main'
-    String sourceRef = params.sourceRef ?: 'HEAD'
-
     def changedFiles = []
     if (env.CHANGE_ID) {
-        echo "INFO: Pull request found - using ${targetRef} as the target reference"
-        changedFiles = git.diffFiles(
-            targetRef: targetRef,
-            sourceRef: sourceRef,
-            allChanges: false,
-        )
+        pullRequest.files.each { changedFiles << it.filename }
     } else {
         echo "INFO: Not a pull request; looking for changes since the last successful build"
-        changedFiles = filesChangedSinceLastSuccessfulBuild()
+        Map result = filesChangedSinceLastSuccessfulBuild()
+        if (!result.foundSuccessfulBuild) {
+            echo "WARNING: Did not find a prior successful build. Forcibly saying yes"
+            return true
+        }
+        changedFiles = result.changedFiles
     }
 
     for (String changedFile : changedFiles) {
@@ -43,7 +38,7 @@ boolean github.fileChangedIn(Map params = [:]) {
 }
 
 // Internal method for finding list of files that have changed since the last build
-String[] filesChangedSinceLastSuccessfulBuild() {
+Map filesChangedSinceLastSuccessfulBuild() {
     def changedFiles = []
     boolean buildSucceeded = false
     def build = currentBuild
@@ -64,5 +59,5 @@ String[] filesChangedSinceLastSuccessfulBuild() {
         build = build.getPreviousBuild()
     }
 
-    return changedFiles
+    return [changedFiles: changedFiles, foundSuccessfulBuild: buildSucceeded]
 }
