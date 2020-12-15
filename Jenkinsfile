@@ -20,6 +20,7 @@ pipeline {
                     deleteDir()
                     script {
                         env.GIT_COMMIT = checkout(scm)
+                        echo "Current build: ${currentBuild}"
                     }
                 }
                 stash includes: '**', name: 'source', useDefaultExcludes: false
