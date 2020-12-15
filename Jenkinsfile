@@ -63,7 +63,7 @@ def commitHashForBuild(build) {
 
 def getLastSuccessfulCommit() {
   def lastSuccessfulHash = null
-  def lastSuccessfulBuild = currentBuild.rawBuild.getPreviousSuccessfulBuild()
+  def lastSuccessfulBuild = currentBuild.lastSuccessfulBuild
   if ( lastSuccessfulBuild ) {
     lastSuccessfulHash = commitHashForBuild(lastSuccessfulBuild)
   }
