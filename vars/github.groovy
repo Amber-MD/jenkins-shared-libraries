@@ -65,3 +65,13 @@ Map filesChangedSinceLastSuccessfulBuild() {
 
     return [changedFiles: changedFiles, foundSuccessfulBuild: buildSucceeded]
 }
+
+void interrogateBuild() {
+    def build = currentBuild
+    while (build != null) {
+        echo "Build ${build.id} had result ${build.result}"
+        echo "Build variables = ${build.absoluteUrl}"
+        echo "Build actions = ${build.actions}"
+        build = build.previousBuild
+    }
+}
