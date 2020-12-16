@@ -72,6 +72,12 @@ void interrogateBuild() {
         echo "Build ${build.id} had result ${build.result}"
         echo "Build variables = ${build.absoluteUrl}"
         echo "Build actions = ${build.rawBuild.getActions()}"
+        echo "Interrogating build actions:"
+        build.rawBuild.getActions().each {
+            if (it.hasProperty("lastBuiltRevision")) {
+                echo "Last built revision = ${it}"
+            }
+        }
         build = build.previousBuild
     }
 }
