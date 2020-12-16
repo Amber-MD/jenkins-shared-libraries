@@ -71,7 +71,7 @@ void interrogateBuild() {
     while (build != null) {
         echo "Build ${build.id} had result ${build.result}"
         echo "Build variables = ${build.absoluteUrl}"
-        echo "Build actions = ${build.actions}"
+        echo "Build actions = ${build.rawBuild.getActions()}"
         build = build.previousBuild
     }
 }
