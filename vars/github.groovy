@@ -17,6 +17,7 @@ boolean fileChangedIn(Map params = [:]) {
     if (env.CHANGE_ID) {
         pullRequest.files.each { changedFiles << it.filename }
     } else {
+        return true // always return true, since we don't have a good way of diffing yet
         echo "INFO: Not a pull request; looking for changes since the last successful build"
         Map result = filesChangedSinceLastSuccessfulBuild()
         if (!result.foundSuccessfulBuild) {
