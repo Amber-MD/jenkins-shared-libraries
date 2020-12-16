@@ -75,7 +75,7 @@ void interrogateBuild() {
         echo "Interrogating build actions:"
         build.rawBuild.getActions().each {
             if (it.hasProperty("lastBuiltRevision")) {
-                echo "Last built revision = ${it.SHA1}"
+                echo "Last built revision = ${it.lastBuiltRevision.SHA1}"
             }
         }
         build = build.previousBuild
