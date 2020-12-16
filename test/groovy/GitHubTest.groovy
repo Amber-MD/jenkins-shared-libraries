@@ -44,6 +44,7 @@ class GitHubTest extends BasePipelineTest {
         doAsserts(script)
     }
 
+/*
     @Test
     void 'fileChangedIn will look through old builds for change sets'() {
         def script = loadScript('vars/github.groovy')
@@ -52,6 +53,7 @@ class GitHubTest extends BasePipelineTest {
         }
         doAsserts(script)
     }
+*/
 
     @Test
     void 'fileChangedIn returns true if no old successful build'() {
