@@ -23,6 +23,10 @@ boolean fileChangedIn(Map params = [:]) {
             echo "WARNING: Did not find a prior successful build. Forcibly saying yes"
             return true
         }
+        if (result.changedFiles.size() == 0) {
+            echo "WARNING: No changed files found. Forcibly saying yes"
+            return true
+        }
         changedFiles = result.changedFiles
     }
 
