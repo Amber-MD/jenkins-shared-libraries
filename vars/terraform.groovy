@@ -90,6 +90,20 @@ boolean apply(Map params = [:]) {
 }
 
 /**
+ * Executes a terraform format
+ *
+ * :param args: Extra arguments to pass to terraform apply. Default is "-check ."
+ * :param errorOnFailure: If true, throw a build error if terraform apply fails. Default true
+ *
+ * :return succeeded: If the terraform apply succeeded, return True. Otherwise false
+ */
+boolean fmt(Map params = [:]) {
+    boolean errorOnFailure = params.getOrDefault('errorOnFailure', true)
+    String args = params.args ?: '-check .'
+    return terraformCommand('fmt', args, errorOnFailure)
+}
+
+/**
  * Internal function for running terraform command. Backwards compatibility is not guaranteed
  */
 boolean terraformCommand(String command, String args, boolean errorOnFailure) {
