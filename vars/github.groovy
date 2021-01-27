@@ -1,8 +1,14 @@
 /**
- * Returns true if the path(s) have been changed and false otherwise
+ * Returns true if the path(s) have been changed and false otherwise. Note that for pull requests,
+ * the files changed are available in the build information. The credentials and GitHub API will
+ * only be used for branch builds where CHANGE_ID is not set.
+ *
+ * This check does *not* require an allocated executor.
  *
  * :param path: Name of the file or path prefix where changes should be looked for
  * :param paths: A list of file or path prefix names where changes should be looked for
+ * :param credentialsId: A set of username/password credentials to access the GitHub API (needed only for private repos)
+ * :param githubApiUrl: The API URL for the GitHub instance. Default is https://api.github.com
  */
 import org.eclipse.jgit.transport.RemoteConfig
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
@@ -11,6 +17,7 @@ import hudson.plugins.git.util.BuildData
 boolean fileChangedIn(Map params = [:]) {
     String path = params.path ?: ''
     def paths = params.paths ?: []
+
     if (paths == [] && path == '') {
         assert path : 'ERROR: Must pass either path or paths'
     } else if (path) {
@@ -22,7 +29,12 @@ boolean fileChangedIn(Map params = [:]) {
         pullRequest.files.each { changedFiles << it.filename }
     } else {
         echo "INFO: Not a pull request; looking for changes since the last successful build"
-        Map result = filesChangedSinceLastSuccessfulBuild()
+        try {
+            Map result = filesChangedSinceLastSuccessfulBuild(params.githubApiUrl ?: "https://api.github.com", params.credentialsId ?: "")
+        } catch {
+            echo "ERROR: Failed fetching change list. Assume something changed"
+            return true
+        }
         if (!result.foundSuccessfulBuild) {
             echo "WARNING: Did not find a prior successful build. Forcibly saying yes"
             return true
@@ -36,7 +48,7 @@ boolean fileChangedIn(Map params = [:]) {
 
     for (String changedFile : changedFiles) {
         boolean anyMatch = paths.any { changedFile.startsWith(it) }
-        if (anyMatch) {
+        if (anyMatch || path == "." || paths.contains(".")) {
             echo "INFO: Changed file ${changedFile} matches"
             return true
         }
@@ -46,32 +58,58 @@ boolean fileChangedIn(Map params = [:]) {
 }
 
 // Internal method for finding list of files that have changed since the last build
-Map filesChangedSinceLastSuccessfulBuild() {
+Map filesChangedSinceLastSuccessfulBuild(String githubApiUrl, String credentialsId) {
     def changedFiles = []
-    def build = currentBuild
-    def lastSuccessfulBuild = currentBuild.previousSuccessfulBuild
-    if (lastSuccessfulBuild == null) {
-        echo "INFO: No previous successful build found"
+    String remoteUrl = getRemoteUrl()
+    String currentCommit = getRevisionFromBuild(currentBuild, remoteUrl)
+    String lastCommit = getRevisionFromBuild(currentBuild.previousSuccessfulBuild, remoteUrl)
+
+    if (remoteUrl == null || currentCommit == null || lastCommit == null) {
+        echo "INFO: Not enough information to determine any file changes."
         return [changedFiles: changedFiles, foundSuccessfulBuild: false]
     }
-    echo "INFO: Looking for changes in build ${build}"
-    while (build && !buildSucceeded) {
-        echo "INFO: Build has ${build.changeSets.size()} change sets"
-        build.changeSets.each { changeSet ->
-            echo "INFO: change set has ${changeSet.items.size()} items"
-            changeSet.items.each { item ->
-                echo "INFO: item has ${item.affectedFiles.size()} affected files"
-                item.affectedFiles.each {
-                    echo "DEBUG: ${it.path} changed"
-                    changedFiles << it.path
-                }
-            }
-        }
-        build = build.getPreviousBuild()
-        buildSucceeded = build != null && build.result == 'SUCCESS'
+
+    Map repoDetails = getOrganizationRepoFromRemote(remoteUrl)
+
+    if (!repoDetails.organization || !repoDetails.repository) {
+        echo "ERROR: Could not find organization or repository from ${remoteUrl}"
+        return [changedFiles: changedFiles, foundSuccessfulBuild: false]
     }
 
-    return [changedFiles: changedFiles, foundSuccessfulBuild: buildSucceeded]
+    String org = repoDetails.organization
+
+    String apiUrl = "${githubApiUrl}/repos/${repoDetails.organization}/${repoDetails.repository}/compare/${lastCommit}...${currentCommit}"
+
+    Map response
+    if (credentialsId == "") {
+        echo "INFO: Getting file changes via anonymous access"
+        def resp = httpRequest(
+            url: apiUrl.toString(),
+            acceptType: 'APPLICATION_JSON',
+            contentType: 'APPLICATION_JSON',
+            httpMode: 'GET',
+            validResponseCodes: '100:399',
+        )
+        response = readJSON(text: resp.getContent())
+    } else {
+        withCredentials([string(credentialsId: credentialsId, variable: 'GITHUB_TOKEN')]) {
+            def resp = httpRequest(
+                url: apiUrl.toString(),
+                acceptType: 'APPLICATION_JSON',
+                contentType: 'APPLICATION_JSON',
+                httpMode: 'GET',
+                validResponseCodes: '100:399',
+                customHeaders = [
+                    [name: 'Authorization', value: "token ${GITHUB_TOKEN}", maskValue: true]
+                ]
+            )
+        }
+        response = readJSON(text: resp.getContent())
+    }
+
+    changedFiles = response.files ?: []
+
+    return [changedFiles: changedFiles, foundSuccessfulBuild: true]
 }
 
 String getRemoteUrl() {
@@ -97,6 +135,11 @@ String getRemoteUrl() {
 
     echo "INFO: Found remote URL ${urls[0]}"
     return urls[0];
+}
+
+Map getOrganizationRepoFromRemote(String url) {
+    List<String> urlParts = url.replaceAll("\\.git\$", "").split("/")
+    return [organization: urlParts[urlParts.size() - 2], repository: urlParts[urlParts.size() - 1]]
 }
 
 String getRevisionFromBuild(RunWrapper build, String remoteUrl) {
