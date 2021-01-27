@@ -134,6 +134,8 @@ void interrogateBuild() {
         echo "INFO: Should look for ${url}/${lastCommit}...${currentCommit}"
         String noGit = url.replaceAll("\\.git\$", "")
         echo "Without .git: ${noGit}"
+        List<String> urlParts = noGit.split("/")
+        echo "Organization = ${urlParts[urlparts.size()-2]} repo = ${urlParts[urlParts.size()-1]}"
     }
     /*
     int i = 0
