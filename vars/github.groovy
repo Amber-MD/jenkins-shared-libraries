@@ -83,7 +83,8 @@ void interrogateBuild() {
             if (it.hasProperty("lastBuiltRevision")) {
                 echo "Last built revision = ${it.lastBuiltRevision} [${it.lastBuiltRevision.class.name}]"
                 echo "Last built revision sha1 = ${it.lastBuiltRevision.getSha1()} [${it.lastBuiltRevision.getSha1().class.name}]"
-                echo "Last built revision sha1 string = ${it.lastBuiltRevision.getSha1().toString()}"
+                def obj_id = it.lastBuiltRevision.getSha1()
+                echo "Last built revision sha1 string = ${obj.toString(obj.toObjectId())}"
             }
         }
         build = build.previousBuild
