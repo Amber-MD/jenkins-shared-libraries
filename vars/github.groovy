@@ -31,8 +31,8 @@ boolean fileChangedIn(Map params = [:]) {
         echo "INFO: Not a pull request; looking for changes since the last successful build"
         try {
             Map result = filesChangedSinceLastSuccessfulBuild(params.githubApiUrl ?: "https://api.github.com", params.credentialsId ?: "")
-        } catch {
-            echo "ERROR: Failed fetching change list. Assume something changed"
+        } catch(Exception ex) {
+            echo "ERROR: Failed fetching change list [${ex}]. Assume something changed"
             return true
         }
         if (!result.foundSuccessfulBuild) {
