@@ -135,7 +135,7 @@ void interrogateBuild() {
         String noGit = url.replaceAll("\\.git\$", "")
         echo "Without .git: ${noGit}"
         List<String> urlParts = noGit.split("/")
-        echo "Organization = ${urlParts[urlparts.size()-2]} repo = ${urlParts[urlParts.size()-1]}"
+        echo "Organization = ${urlParts[urlParts.size()-2]} repo = ${urlParts[urlParts.size()-1]}"
     }
     /*
     int i = 0
