@@ -167,7 +167,12 @@ String getRevisionFromBuild(RunWrapper build, String remoteUrl) {
     return gitHash
 }
 
-void interrogateBuild() {
+Map interrogateBuild(Map params = [:]) {
+    Map results = filesChangedSinceLastSuccessfulBuild("https://api.github.com", params.credentialsId)
+    echo "filesChangedSinceLastSuccessfulBuild: ${results}"
+    return results
+
+
     String url = getRemoteUrl()
     String currentCommit = getRevisionFromBuild(currentBuild, url)
     String lastCommit = getRevisionFromBuild(currentBuild.previousSuccessfulBuild, url)
