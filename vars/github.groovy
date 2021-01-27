@@ -80,9 +80,11 @@ void interrogateBuild() {
         echo "Interrogating build actions:"
         build.rawBuild.getActions().each {
             echo "BuildAction class name is ${it.class.name}"
-            if (it.hasProperty("lastBuiltRevision")) {
+            if (it instanceof hudson.plugins.git.util.BuildData) {
                 echo "Last built revision = ${it.lastBuiltRevision} [${it.lastBuiltRevision.class.name}]"
                 echo "Last built revision sha1 = ${it.lastBuiltRevision.getSha1String()}"
+                echo "Remote URLs: ${it.getRemoteUrls()}"
+                echo "SCM Name: ${it.getScmName()}"
             }
         }
         build = build.previousSuccessfulBuild
