@@ -72,7 +72,8 @@ Map filesChangedSinceLastSuccessfulBuild() {
 
 void interrogateBuild() {
     def build = currentBuild
-    while (build != null) {
+    int i = 0
+    while (i < 2) {
         echo "Build ${build.id} had result ${build.result}"
         echo "Build variables = ${build.absoluteUrl}"
         echo "Build actions = ${build.rawBuild.getActions()}"
@@ -84,5 +85,6 @@ void interrogateBuild() {
             }
         }
         build = build.previousBuild
+        i++
     }
 }
