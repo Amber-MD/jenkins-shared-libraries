@@ -82,7 +82,7 @@ void interrogateBuild() {
             echo "BuildAction class name is ${it.class.name}"
             if (it.hasProperty("lastBuiltRevision")) {
                 echo "Last built revision = ${it.lastBuiltRevision} [${it.lastBuiltRevision.class.name}]"
-                echo "Last built revision sha1 = ${it.lastBuiltRevision.getSha1()}"
+                echo "Last built revision sha1 = ${it.lastBuiltRevision.getSha1()} [${it.lastBuiltRevision.getSha1().class.name}]"
             }
         }
         build = build.previousBuild
