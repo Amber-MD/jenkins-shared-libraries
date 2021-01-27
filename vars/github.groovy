@@ -76,6 +76,8 @@ void interrogateBuild() {
     echo "scm = ${scm}"
     echo "repositories = ${scm.getRepositories()}"
     echo "URIs = ${scm.getRepositories()[0].getURIs()}"
+    String url = ${scm.getRepositories()[0].getURIs()[0].toString()}
+    echo "First URL = ${url}"
     while (i < 2) {
         echo "Build ${build.id} had result ${build.result}"
         echo "Build variables = ${build.absoluteUrl}"
