@@ -85,7 +85,7 @@ void interrogateBuild() {
                 echo "Last built revision sha1 = ${it.lastBuiltRevision.getSha1String()}"
             }
         }
-        build = build.previousBuild
+        build = build.previousSuccessfulBuild
         i++
     }
 }
