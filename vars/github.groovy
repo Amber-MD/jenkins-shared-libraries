@@ -81,7 +81,7 @@ Map filesChangedSinceLastSuccessfulBuild(String githubApiUrl, String credentials
     String apiUrl = "${githubApiUrl}/repos/${repoDetails.organization}/${repoDetails.repository}/compare/${lastCommit}...${currentCommit}"
 
     Map response
-    if (credentialsId == "") {
+    if (credentialsId == "" || credentialsId == null) {
         echo "INFO: Getting file changes via anonymous access"
         def resp = httpRequest(
             url: apiUrl.toString(),
