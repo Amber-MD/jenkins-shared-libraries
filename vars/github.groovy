@@ -107,7 +107,9 @@ Map filesChangedSinceLastSuccessfulBuild(String githubApiUrl, String credentials
         response = readJSON(text: resp.getContent())
     }
 
-    changedFiles = response.files ?: []
+    (response.files ?: []).each { fileInfo ->
+        changedFiles.add(fileInfo.filename)
+    }
 
     return [changedFiles: changedFiles, foundSuccessfulBuild: true]
 }
