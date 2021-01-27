@@ -113,7 +113,7 @@ String getRevisionFromBuild(RunWrapper build, String remoteUrl) {
                 echo "INFO: Matched SCM URL for build action"
                 gitHash = action.lastBuiltRevision.getSha1String()
                 return gitHash
-            }
+           }
         }
     }
 
@@ -127,7 +127,7 @@ String getRevisionFromBuild(RunWrapper build, String remoteUrl) {
 void interrogateBuild() {
     String url = getRemoteUrl()
     String currentCommit = getRevisionFromBuild(currentBuild, url)
-    String lastCommit = getRevisionFromBuild(currentBuild.lastSuccessfulBuild, url)
+    String lastCommit = getRevisionFromBuild(currentBuild.previousSuccessfulBuild, url)
     if (url == null || currentCommit == null || lastCommit == null) {
         echo "WARNING: Could not find all the information needed to identify changes."
     } else {
