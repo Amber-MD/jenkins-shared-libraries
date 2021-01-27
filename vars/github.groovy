@@ -74,6 +74,7 @@ void interrogateBuild() {
     def build = currentBuild
     int i = 0
     echo "scm = ${scm}"
+    echo "repositories = ${scm.getRepositories()}"
     while (i < 2) {
         echo "Build ${build.id} had result ${build.result}"
         echo "Build variables = ${build.absoluteUrl}"
