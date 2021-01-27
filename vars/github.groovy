@@ -44,8 +44,12 @@ boolean fileChangedIn(Map params = [:]) {
 // Internal method for finding list of files that have changed since the last build
 Map filesChangedSinceLastSuccessfulBuild() {
     def changedFiles = []
-    boolean buildSucceeded = false
     def build = currentBuild
+    def lastSuccessfulBuild = currentBuild.previousSuccessfulBuild
+    if (lastSuccessfulBuild == null) {
+        echo "INFO: No previous successful build found"
+        return [changedFiles: changedFiles, foundSuccessfulBuild: false]
+    }
     echo "INFO: Looking for changes in build ${build}"
     while (build && !buildSucceeded) {
         echo "INFO: Build has ${build.changeSets.size()} change sets"
@@ -75,7 +79,7 @@ void interrogateBuild() {
         echo "Interrogating build actions:"
         build.rawBuild.getActions().each {
             if (it.hasProperty("lastBuiltRevision")) {
-                echo "Last built revision = ${it.lastBuiltRevision.SHA1}"
+                echo "Last built revision = ${it.lastBuiltRevision}"
             }
         }
         build = build.previousBuild
