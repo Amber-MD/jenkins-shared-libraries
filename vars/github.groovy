@@ -6,6 +6,7 @@
  */
 import org.eclipse.jgit.transport.RemoteConfig
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
+import hudson.plugins.git.util.BuildData
 
 boolean fileChangedIn(Map params = [:]) {
     String path = params.path ?: ''
@@ -107,8 +108,8 @@ String getRevisionFromBuild(RunWrapper build, String remoteUrl) {
     String gitHash = null
 
     build.rawBuild.getActions().each { action ->
-        if (action instanceof hudson.plugins.git.util.BuildData) {
-            if (action.contains(remoteUrl)) {
+        if (action instanceof BuildData) {
+            if (action.getRemoteUrls().contains(remoteUrl)) {
                 echo "INFO: Matched SCM URL for build action"
                 gitHash = action.lastBuiltRevision.getSha1String()
                 return gitHash
