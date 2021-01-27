@@ -132,6 +132,8 @@ void interrogateBuild() {
         echo "WARNING: Could not find all the information needed to identify changes."
     } else {
         echo "INFO: Should look for ${url}/${lastCommit}...${currentCommit}"
+        String noGit = url.replaceAll(".git", "")
+        echo "Without .git: ${noGit}"
     }
     /*
     int i = 0
