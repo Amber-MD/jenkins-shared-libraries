@@ -25,12 +25,13 @@ boolean fileChangedIn(Map params = [:]) {
     }
 
     def changedFiles = []
+    Map result
     if (env.CHANGE_ID) {
         pullRequest.files.each { changedFiles << it.filename }
     } else {
         echo "INFO: Not a pull request; looking for changes since the last successful build"
         try {
-            Map result = filesChangedSinceLastSuccessfulBuild(params.githubApiUrl ?: "https://api.github.com", params.credentialsId ?: "")
+            result = filesChangedSinceLastSuccessfulBuild(params.githubApiUrl ?: "https://api.github.com", params.credentialsId ?: "")
         } catch(Exception ex) {
             echo "ERROR: Failed fetching change list [${ex}]. Assume something changed"
             return true
