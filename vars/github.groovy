@@ -53,7 +53,7 @@ Map filesChangedSinceLastSuccessfulBuild() {
 
     if (remoteUrl == null || currentCommit == null || lastCommit == null) {
         echo "INFO: Not enough information to determine any file changes."
-        return [changedFiles: changedFiles, foundSuccessfulBuild: false]
+        return [changedFiles: [], foundSuccessfulBuild: false]
     }
     List<String> changedFiles = git.diffFiles(targetRef: lastCommit, sourceRef: currentCommit)
     return [changedFiles: changedFiles, foundSuccessfulBuild: true]
