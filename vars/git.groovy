@@ -109,11 +109,11 @@ Map merge(Map params = [:]) {
             echo "ERROR: git merge --abort failed. Ignoring..."
         }
         return ['changesMade': false, 'succeeded': false, 'errors': errorMessage]
-    } else if (mergeText == "Already up to date.") {
+    } else if (mergeText == "Already up to date." || mergeText == "Already up-to-date.") {
         echo "INFO: ${params.currentBranch} was already up-to-date with ${params.targetBranch}"
         return ['changesMade': false, 'succeeded': true, 'errors': '']
     } else {
-        echo "DEBUG: mergeText = ${mergeText}"
+        // echo "DEBUG: mergeText = ${mergeText}"
         String msg = ''
         if (doPush) {
             sshagent([params.gitCredentialsId]) {
