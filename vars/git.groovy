@@ -113,6 +113,7 @@ Map merge(Map params = [:]) {
         echo "INFO: ${params.currentBranch} was already up-to-date with ${params.targetBranch}"
         return ['changesMade': false, 'succeeded': true, 'errors': '']
     } else {
+        echo "DEBUG: mergeText = ${mergeText}"
         String msg = ''
         if (doPush) {
             sshagent([params.gitCredentialsId]) {
