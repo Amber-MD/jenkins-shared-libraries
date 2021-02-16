@@ -4,6 +4,7 @@
 import groovy.transform.Field
 
 @Field String terraformVersion = '0.13.5'
+@Field String terrascanVersion = '1.3.2'
 
 /**
  * Executes the given function within a terraform container
@@ -12,7 +13,9 @@ import groovy.transform.Field
  */
 void withTerraform(Map params, Closure body) {
     String terraformFileName = "terraform_${terraformVersion}_linux_amd64.zip"
+    String terrascanFileName = "terrascan_${terrascanVersion}_Linux_x86_64.tar.gz"
     String terraformUrl = "https://releases.hashicorp.com/terraform/${terraformVersion}/${terraformFileName}"
+    String terrascanUrl = "https://github.com/accurics/terrascan/releases/download/v${terrascanVersion}/${terrascanFileName}"
     docker.image('alpine:3.12').inside("-e HOME=\"${env.WORKSPACE}\"") {
         // Set up AWS credentials if provided
         if (params.awsCredentials) {
@@ -28,14 +31,19 @@ void withTerraform(Map params, Closure body) {
         echo "INFO: Downloading terraform"
         sh(label: "Download terraform", script: """#!/bin/sh -ex
             cd ${env.WORKSPACE}
-            if [ -f terraform -a -x terraform ]; then
-                echo "INFO: Terraform already present and executable"
+            if [ -f terraform -a -x terraform -a -f terrascan -a -x terrascan ]; then
+                echo "INFO: Terraform & terrascan already present and executable"
             else
-                echo "INFO: Fetching and unzipping terraform"
+                echo "INFO: Fetching and unzipping terraform and terrascan"
                 rm -f terraform
                 wget ${terraformUrl}
                 unzip ${terraformFileName}
                 rm ${terraformFileName}
+
+                rm -f terrascan
+                wget ${terrascanUrl}
+                tar zxvf ${terrascanFileName} terrascan
+                rm ${terrascanFileName}
             fi
         """)
 
@@ -101,6 +109,20 @@ boolean fmt(Map params = [:]) {
     boolean errorOnFailure = params.getOrDefault('errorOnFailure', true)
     String args = params.args ?: '-check .'
     return terraformCommand('fmt', args, errorOnFailure)
+}
+
+/**
+ * Executes a terraform validate
+ *
+ * :param errorOnFailure: If true, throw a build error if terraform validate fails. Default true
+ * :param args: The arguments to pass to the command-line
+ *
+ * :return succeeded: If the terraform validate succeeded, return True. Otherwise false
+ */
+boolean validate(Map params = [:]) {
+    boolean errorOnFailure = params.getOrDefault('errorOnFailure', true)
+    String args = params.args ?: ''
+    return terraformCommand('validate', args, errorOnFailure)
 }
 
 /**
