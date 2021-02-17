@@ -16,11 +16,12 @@ void withTerraform(Map params, Closure body) {
     String terrascanFileName = "terrascan_${terrascanVersion}_Linux_x86_64.tar.gz"
     String terraformUrl = "https://releases.hashicorp.com/terraform/${terraformVersion}/${terraformFileName}"
     String terrascanUrl = "https://github.com/accurics/terrascan/releases/download/v${terrascanVersion}/${terrascanFileName}"
+    String awsCredentialsId = params.awsCredentials ?: 's3-terraform-state-credentials'
     docker.image('alpine:3.12').inside("-e HOME=\"${env.WORKSPACE}\"") {
         // Set up AWS credentials if provided
         if (params.awsCredentials) {
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                              credentialsId: 's3-terraform-state-credentials',
+                              credentialsId: awsCredentialsId,
                               accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                               secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                 writeFile(file: "${env.WORKSPACE}/.aws/credentials",
