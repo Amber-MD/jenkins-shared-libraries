@@ -16,8 +16,9 @@ class TerraformTest extends BasePipelineTest {
     @Test
     void 'verify plan defaults'() {
         def script = loadScript('vars/terraform.groovy')
-        script.metaClass.terraformCommand = {String command, String args, boolean errorOnFailure ->
+        script.metaClass.terraformCommand = {String command, String args, boolean errorOnFailure, String outputFile = '' ->
             assert command == 'plan'
+            assert outputFile == ''
             assert args.trim() == '-out terraform.plan'
             assert errorOnFailure
             return true
@@ -28,8 +29,9 @@ class TerraformTest extends BasePipelineTest {
     @Test
     void 'verify custom args and plan output support'() {
         def script = loadScript('vars/terraform.groovy')
-        script.metaClass.terraformCommand = {String command, String args, boolean errorOnFailure ->
+        script.metaClass.terraformCommand = {String command, String args, boolean errorOnFailure, String outputFile = '' ->
             assert command == 'plan'
+            assert outputFile == ''
             assert args.trim() == '-some-arg foo -other-arg bar -out baloney.plan'
             assert errorOnFailure
             return true
@@ -40,8 +42,9 @@ class TerraformTest extends BasePipelineTest {
     @Test
     void 'verify custom args with apply'() {
         def script = loadScript('vars/terraform.groovy')
-        script.metaClass.terraformCommand = {String command, String args, boolean errorOnFailure ->
+        script.metaClass.terraformCommand = {String command, String args, boolean errorOnFailure, String outputFile = '' ->
             assert command == 'apply'
+            assert outputFile == ''
             assert args.trim() == '-some-arg foo -other-arg bar -auto-approve'
             assert errorOnFailure
             return true
@@ -52,9 +55,10 @@ class TerraformTest extends BasePipelineTest {
     @Test
     void 'verify apply with log output file'() {
         def script = loadScript('vars/terraform.groovy')
-        script.metaClass.terraformCommand = {String command, String args, boolean errorOnFailure ->
+        script.metaClass.terraformCommand = {String command, String args, boolean errorOnFailure, String outputFile = '' ->
             assert command == 'apply'
-            assert args.trim() == '-auto-approve | tee terraform.log'
+            assert outputFile == 'terraform.log'
+            assert args.trim() == '-auto-approve'
             assert errorOnFailure
             return true
         }
