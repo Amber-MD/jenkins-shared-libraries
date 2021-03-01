@@ -92,10 +92,8 @@ boolean init(Map params = [:]) {
 boolean apply(Map params = [:]) {
     boolean errorOnFailure = params.getOrDefault('errorOnFailure', true)
     String args = params.args ?: ''
-    if (params.fileName) {
-        return terraformCommand('apply', "${args} -auto-approve | tee ${params.fileName}", errorOnFailure)
-    }
-    return terraformCommand('apply', "${args} -auto-approve", errorOnFailure)
+    String outputFile = params.fileName ?: ''
+    return terraformCommand('apply', "${args} -auto-approve", errorOnFailure, outputFile)
 }
 
 /**
@@ -129,10 +127,28 @@ boolean validate(Map params = [:]) {
 /**
  * Internal function for running terraform command. Backwards compatibility is not guaranteed
  */
-boolean terraformCommand(String command, String args, boolean errorOnFailure) {
-    boolean succeeded = sh(label: "Terraform ${command}",
-                           script: "${env.WORKSPACE}/terraform ${command} ${args}",
-                           returnStatus: true) == 0
+boolean terraformCommand(String command, String args, boolean errorOnFailure, String outputFile = '') {
+    boolean succeeded
+    if (outputFile == '') {
+        succeeded = sh(
+            label: "Terraform ${command}",
+            script: "${env.WORKSPACE}/terraform ${command} ${args}",
+            returnStatus: true
+        ) == 0
+    } else {
+        succeeded = sh(label: "Terraform ${command}", script: """#!/bin/sh
+                ${env.WORKSPACE}/terraform ${command} ${args} > ${outputFile}
+                if [ \$? -ne 0 ]; then
+                    echo "ERROR in terraform ${command}"
+                    cat ${outputFile}
+                    exit 1
+                fi
+                cat ${outputFile}
+                exit 0
+            """,
+            returnStatus: true
+        ) == 0
+    }
 
     if (!succeeded && errorOnFailure) {
         error("Failed terraform ${command} - see the logs for additional details")
