@@ -127,9 +127,9 @@ boolean validate(Map params = [:]) {
 /**
  * Internal function for running terraform command. Backwards compatibility is not guaranteed
  */
-boolean terraformCommand(String command, String args, boolean errorOnFailure, String outputFile = "") {
+boolean terraformCommand(String command, String args, boolean errorOnFailure, String outputFile = '') {
     boolean succeeded
-    if (outputFile == "") {
+    if (outputFile == '') {
         succeeded = sh(
             label: "Terraform ${command}",
             script: "${env.WORKSPACE}/terraform ${command} ${args}",
