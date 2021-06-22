@@ -103,7 +103,7 @@ Map merge(Map params = [:]) {
                     echo "Resetting the git repository to ${remote}/${params.currentBranch}"
                     git reset --hard ${remote}/${params.currentBranch}
                 """, returnStatus: true
-            ) == 0
+            ) != 0
             if (failedToReset) {
                 echo "WARNING: Failed resetting the branch with `git reset`. This may need to be fixed by hand."
             }
