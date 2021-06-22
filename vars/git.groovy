@@ -95,6 +95,19 @@ Map merge(Map params = [:]) {
             git config user.email "no-reply@ambermd.org"
             git merge --no-edit ${remote}/${params.targetBranch} > merge_output.txt
         """, returnStatus: true) != 0
+        if (hasFailed) {
+            boolean failedToReset = sh(
+                label: 'reset git repo following failed merge',
+                script: """#!/bin/bash
+                    set -e
+                    echo "Resetting the git repository to ${remote}/${params.targetBranch}"
+                    git reset --hard ${remote}/${params.targetBranch}
+                """, returnStatus: true
+            ) == 0
+            if (failedToReset) {
+                echo "WARNING: Failed resetting the branch with `git reset`. This may need to be fixed by hand."
+            }
+        }
     }
     String mergeText = readFile('merge_output.txt').trim()
 
