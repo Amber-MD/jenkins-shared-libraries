@@ -100,8 +100,8 @@ Map merge(Map params = [:]) {
                 label: 'reset git repo following failed merge',
                 script: """#!/bin/bash
                     set -e
-                    echo "Resetting the git repository to ${remote}/${params.targetBranch}"
-                    git reset --hard ${remote}/${params.targetBranch}
+                    echo "Resetting the git repository to ${remote}/${params.currentBranch}"
+                    git reset --hard ${remote}/${params.currentBranch}
                 """, returnStatus: true
             ) == 0
             if (failedToReset) {
