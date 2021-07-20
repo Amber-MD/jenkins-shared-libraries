@@ -3,8 +3,8 @@
  */
 import groovy.transform.Field
 
-@Field String terraformVersion = '0.13.5'
-@Field String terrascanVersion = '1.3.2'
+@Field String defaultTerraformVersion = '0.13.5'
+@Field String defaultTerrascanVersion = '1.3.2'
 
 /**
  * Executes the given function within a terraform container
@@ -12,6 +12,8 @@ import groovy.transform.Field
  * :param awsCredentials: The AWS Credentials to set up for access to AWS
  */
 void withTerraform(Map params, Closure body) {
+    String terraformVersion = params.terraformVersion ?: defaultTerraformVersion
+    String terrascanVersion = params.terrascanVersion ?: defaultTerrascanVersion
     String terraformFileName = "terraform_${terraformVersion}_linux_amd64.zip"
     String terrascanFileName = "terrascan_${terrascanVersion}_Linux_x86_64.tar.gz"
     String terraformUrl = "https://releases.hashicorp.com/terraform/${terraformVersion}/${terraformFileName}"
