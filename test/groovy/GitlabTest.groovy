@@ -131,7 +131,7 @@ class GitlabTest extends BasePipelineTest {
             return ['extra': 'parameter', 'state': 'opened']
         }
 
-        Map resp = script.mergeRequestState(projectId: '5', mergeRequestId: '10')
+        String resp = script.mergeRequestState(projectId: '5', mergeRequestId: '10')
         assert resp == 'opened'
     }
 
