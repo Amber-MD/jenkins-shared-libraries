@@ -123,6 +123,19 @@ class GitlabTest extends BasePipelineTest {
     }
 
     @Test
+    void 'mergeRequestState correctly returns just the state'() {
+        def script = loadScript('vars/gitlab.groovy')
+        script.metaClass.internal_getMergeRequest = {Map params ->
+            assert params.projectId == '5'
+            assert params.mergeRequestId == '10'
+            return ['extra': 'parameter', 'state': 'opened']
+        }
+
+        Map resp = script.mergeRequestState(projectId: '5', mergeRequestId: '10')
+        assert resp == 'opened'
+    }
+
+    @Test
     void 'mergeRequestComment requires a message'() {
         def script = loadScript('vars/gitlab.groovy')
         try {
