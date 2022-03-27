@@ -32,6 +32,21 @@ Map mergeRequestAuthor(Map params = [:]) {
 }
 
 /**
+ * Gets the state of the merge request
+ *
+ * :param projectId: The ID of the project. Required
+ * :param mergeRequestId: This is the merge request Iid (not Id), which is the
+ *                        project-specific ID, not the globally-unique ID. Required
+ * :param gitlabCredentialsId: The credentials ID storing the GitLab access token to use.
+ *                             Default is 'amber-gitlab-automaton-token'
+ * :returns: the status of the merge request as a string
+ */
+String mergeRequestState(Map params = [:]) {
+    Map mergeRequest = internal_getMergeRequest(params)
+    return mergeRequest.state
+}
+
+/**
  * Posts a comment on a merge request
  *
  * :param message: The message to post to the merge request discussion. Required
